@@ -7,8 +7,8 @@ defmodule PadelSlots.Data.Repo.Migrations.CreateSlots do
       add :club_name, :string
       add :slot_id, :string
       add :date, :date
-      add :start, :time
-      add :end, :time
+      add :start_time, :time
+      add :end_time, :time
       add :court_id, :string
       add :court_name, :string
       add :locked, :boolean
