@@ -8,6 +8,7 @@ defmodule Scraper.Application do
   def start(_type, _args) do
     children = [
       # Starts a worker by calling: Scraper.Worker.start_link(arg)
+      {PadelSlots.Data.Repo, []},
       {Scraper.Worker, %{}}
     ]
 
