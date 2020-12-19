@@ -21,7 +21,7 @@ defmodule Scraper.Worker do
     today = Date.utc_today()
 
     Enum.each(
-      Date.range(today, Date.add(today, 25)),
+      Date.range(today, Date.add(today, 30)),
       fn date ->
         scrape(Date.to_string(date))
       end
@@ -47,17 +47,18 @@ defmodule Scraper.Worker do
   defp save_slots(elem) do
     club_id = Map.get(elem, "club_id")
     club_name = Map.get(elem, "club_name")
+    court_name = Map.get(elem, "name")
 
     slots =
       Map.get(elem, "slots")
-      |> Enum.map(fn slot -> build_slot(club_id, club_name, slot) end)
+      |> Enum.map(fn slot -> build_slot(club_id, club_name, court_name, slot) end)
 
     PadelSlots.Data.Repo.transaction(fn ->
       PadelSlots.Data.Repo.insert_all(PadelSlots.Data.Model.Slot, slots)
     end)
   end
 
-  defp build_slot(club_id, club_name, elem) do
+  defp build_slot(club_id, club_name, court_name, elem) do
     slot_id = Map.get(elem, "slot_id")
     {:ok, date} = Date.from_iso8601(Map.get(elem, "date"))
     st = Map.get(elem, "start")
@@ -65,7 +66,6 @@ defmodule Scraper.Worker do
     ed = Map.get(elem, "end")
     {:ok, end_time} = Time.from_iso8601("#{ed}:00")
     court_id = Map.get(elem, "court_id")
-    court_name = Map.get(elem, "court_name")
     locked = Map.get(elem, "locked")
     status = Map.get(elem, "status")
 
