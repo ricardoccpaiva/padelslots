@@ -27,7 +27,7 @@ defmodule Scraper.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.7"},
-      {:poison, "~> 3.1"},
+      {:jason, "~> 1.0"},
       {:data, in_umbrella: true}
     ]
   end

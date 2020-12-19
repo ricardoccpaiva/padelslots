@@ -7,7 +7,7 @@ defmodule Scraper.Gateways.Aircourts do
 
     case HTTPoison.get(url, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Poison.decode!(body)
+        Jason.decode!(body)
 
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         IO.puts("Not found :(")
