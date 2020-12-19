@@ -9,19 +9,5 @@
 # move said applications out of the umbrella.
 import Config
 
-config :data,
-  ecto_repos: [PadelSlots.Data.Repo]
-
-config :data, PadelSlots.Data.Repo,
-  database: "data_repo",
-  username: "rp",
-  password: "rp12345",
-  hostname: "localhost"
-
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
+import_config "../apps/data/config/config.exs"
+import_config "../apps/webslots/config/config.exs"
