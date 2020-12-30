@@ -1,5 +1,6 @@
 defmodule Scraper.Worker do
   use GenServer
+  import Ecto.Query
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -11,21 +12,80 @@ defmodule Scraper.Worker do
 
   # GenServer Callbacks
   def init(%{} = _args) do
+    if(true) do
+      timer =
+        :timer.tc(fn ->
+          PadelSlots.Data.Repo.delete_all(PadelSlots.Data.Model.Slot)
+        end)
+
+      timer |> IO.inspect(label: "Delete all took:")
+
+      today = Date.utc_today()
+
+      Enum.each(
+        Date.range(today, Date.add(today, 25)),
+        fn date ->
+          scrape(Date.to_string(date))
+        end
+      )
+    end
+
+    IO.puts("Scraping finished, shall i continue? ")
+    :timer.sleep(10000)
+
     timer =
       :timer.tc(fn ->
-        PadelSlots.Data.Repo.delete_all(PadelSlots.Data.Model.Slot)
+        number_of_days_to_search = 7
+
+        slot_count =
+          PadelSlots.Data.Repo.aggregate(
+            from(
+              u in PadelSlots.Data.Model.Slot,
+              where:
+                u.status == "available" and u.date < from_now(^number_of_days_to_search, "day")
+            ),
+            :count,
+            :id
+          )
+
+        slot_count |> IO.inspect(label: "Available slots count:")
+
+        Enum.each(
+          Enum.to_list(1..slot_count),
+          fn offset ->
+            slots =
+              PadelSlots.Data.Repo.all(
+                from(
+                  u in PadelSlots.Data.Model.Slot,
+                  where:
+                    u.status == "available" and
+                      u.date < from_now(^number_of_days_to_search, "day"),
+                  limit: 3,
+                  offset: ^offset
+                )
+              )
+
+            case slots do
+              [slot1, slot2, slot3] ->
+                if slot1.club_id == slot2.club_id && slot2.club_id == slot3.club_id &&
+                     slot1.court_id == slot2.court_id && slot2.court_id == slot3.court_id &&
+                     slot1.date == slot2.date && slot2.date == slot3.date &&
+                     slot1.end_time == slot2.start_time && slot2.end_time == slot3.start_time do
+                  IO.puts(
+                    "----> vaga encontrada em #{slot1.club_name} no dia #{slot1.date} das #{
+                      slot1.start_time
+                    } às #{slot3.end_time} no campo #{slot1.court_name}"
+                  )
+                end
+
+              _ ->
+                IO.puts("----> End of search reached.")
+            end
+          end
+        )
       end)
 
-    timer |> IO.inspect(label: "Delete all took:")
-
-    today = Date.utc_today()
-
-    Enum.each(
-      Date.range(today, Date.add(today, 30)),
-      fn date ->
-        scrape(Date.to_string(date))
-      end
-    )
+    IO.puts("Bot took #{inspect(timer)}")
 
     {:ok, %{}}
   end
@@ -66,7 +126,6 @@ defmodule Scraper.Worker do
     ed = Map.get(elem, "end")
     {:ok, end_time} = Time.from_iso8601("#{ed}:00")
     court_id = Map.get(elem, "court_id")
-    locked = Map.get(elem, "locked")
     status = Map.get(elem, "status")
 
     %{
