@@ -1,5 +1,6 @@
 defmodule Scraper.Worker do
   use GenServer
+  alias Scraper.SlotFinder
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -14,6 +15,7 @@ defmodule Scraper.Worker do
     timer =
       :timer.tc(fn ->
         PadelSlots.Data.Repo.delete_all(PadelSlots.Data.Model.Slot)
+        PadelSlots.Data.Repo.delete_all(PadelSlots.Data.Model.FreeSlot)
       end)
 
     timer |> IO.inspect(label: "Delete all took:")
@@ -21,9 +23,17 @@ defmodule Scraper.Worker do
     today = Date.utc_today()
 
     Enum.each(
-      Date.range(today, Date.add(today, 25)),
+      Date.range(today, Date.add(today, 30)),
       fn date ->
         scrape(Date.to_string(date))
+
+        {_time, free_slots} = SlotFinder.find(Date.to_string(date))
+
+        free_slots
+        |> Enum.filter(fn slot -> slot != nil end)
+        |> SlotFinder.save()
+
+        IO.puts("")
       end
     )
 
@@ -41,7 +51,7 @@ defmodule Scraper.Worker do
         length(results)
       end)
 
-    IO.puts("Scrape date #{date} took #{inspect(timer)}")
+    IO.puts("Scraping date #{date} took #{inspect(timer)}")
   end
 
   defp save_slots(elem) do
