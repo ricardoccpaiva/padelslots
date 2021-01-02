@@ -18,8 +18,7 @@ defmodule PadelSlotsWeb.SlotView do
       start_time: slot.start_time,
       end_time: slot.end_time,
       court_id: slot.court_id,
-      court_name: slot.court_name,
-      status: slot.status
+      court_name: slot.court_name
     }
   end
 end
