@@ -9,6 +9,7 @@ defmodule PadelSlotsWeb.Router do
     pipe_through :api
 
     get("/slots", SlotController, :index)
+    get("/clubs", ClubController, :index)
   end
 
   # Enables LiveDashboard only for development
