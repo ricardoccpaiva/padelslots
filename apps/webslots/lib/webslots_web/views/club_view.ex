@@ -13,7 +13,7 @@ defmodule PadelSlotsWeb.ClubView do
   def render("club.json", %{club: club}) do
     %{
       id: club.id,
-      name: club.name,
+      name: club.name
     }
   end
 end
