@@ -1,0 +1,61 @@
+version: '3'
+
+networks:
+  internal:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: "rp"
+      POSTGRES_PASSWORD: "rp12345"
+    networks:
+      internal:
+        aliases:
+          - postgres
+  
+  setup_db:
+    build:
+      context: .
+    environment:
+      PG_HOST: "postgres"
+      PG_PASS: "rp12345"
+    depends_on:
+      - postgres
+    command:
+        "sh -c 'cd apps/data && mix ecto.create && mix ecto.migrate'"
+    networks:
+      internal:
+        aliases:
+          - setup_db
+
+  web:
+    build:
+      context: .
+    environment:
+      PG_HOST: "postgres"
+      PG_PASS: "123456"
+    command:
+        "sh -c 'cd apps/webslots && mix phx.server'"
+    ports:
+      - "4000:4000"
+    networks:
+      internal:
+        aliases:
+          - web
+
+  scraper:
+    build:
+      context: .
+    environment:
+      PG_HOST: "postgres"
+      PG_PASS: "rp12345"
+    depends_on:
+      - postgres
+    command:
+        "sh -c 'cd apps/scraper && mix run --no-halt'"
+    networks:
+      internal:
+        aliases:
+          - scraper

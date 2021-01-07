@@ -4,7 +4,7 @@ config :data, PadelSlots.Data.Repo,
   database: "data_repo",
   username: "rp",
   password: "rp12345",
-  hostname: "localhost"
+  hostname: System.get_env("PG_HOST")
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
