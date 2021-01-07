@@ -12,6 +12,18 @@ defmodule Scraper.Worker do
 
   # GenServer Callbacks
   def init(%{} = _args) do
+    Process.send_after(self(), :scrape_all, 0)
+
+    {:ok, %{}}
+  end
+
+  def handle_info(:scrape_all, _state) do
+    scrape_all()
+
+    {:noreply, %{}}
+  end
+
+  def scrape_all() do
     timer =
       :timer.tc(fn ->
         PadelSlots.Data.Repo.delete_all(PadelSlots.Data.Model.Slot)
@@ -23,7 +35,7 @@ defmodule Scraper.Worker do
     today = Date.utc_today()
 
     Enum.each(
-      Date.range(today, Date.add(today, 30)),
+      Date.range(today, Date.add(today, 15)),
       fn date ->
         scrape(Date.to_string(date))
 
@@ -37,10 +49,10 @@ defmodule Scraper.Worker do
       end
     )
 
-    {:ok, %{}}
+    Process.send_after(self(), :scrape_all, 1_800_000)
   end
 
-  def scrape(date) do
+  defp scrape(date) do
     timer =
       :timer.tc(fn ->
         slots = Scraper.Gateways.Aircourts.fetch_slots(date)
