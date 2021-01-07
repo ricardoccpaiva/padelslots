@@ -12,5 +12,6 @@ defmodule PadelSlots.Data.Model.Slot do
     field(:court_name, :string)
     field(:locked, :boolean)
     field(:status, :string)
+    field(:roof, :boolean)
   end
 end

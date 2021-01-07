@@ -9,5 +9,6 @@ defmodule PadelSlots.Data.Model.FreeSlot do
     field(:end_time, :time)
     field(:court_id, :string)
     field(:court_name, :string)
+    field(:roof, :boolean)
   end
 end

@@ -47,7 +47,8 @@ defmodule Scraper.SlotFinder do
                   start_time: slot1.start_time,
                   end_time: slot3.end_time,
                   court_id: slot1.court_id,
-                  court_name: slot1.court_name
+                  court_name: slot1.court_name,
+                  roof: slot1.roof
                 }
               end
 
