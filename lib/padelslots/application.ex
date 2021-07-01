@@ -14,9 +14,9 @@ defmodule Padelslots.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Padelslots.PubSub},
       # Start the Endpoint (http/https)
-      PadelslotsWeb.Endpoint
+      PadelslotsWeb.Endpoint,
       # Start a worker by calling: Padelslots.Worker.start_link(arg)
-      # {Padelslots.Worker, arg}
+      Padelslots.Workers.Scraper
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
